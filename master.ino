@@ -68,6 +68,9 @@
   Servo myservo;  // create servo object to control a servo 
   int n; //value to write to servo
 
+// RELAY SETUP
+  int relayPin = 8;// set pin 8 for relay output
+
 void setup() {
 // GENERAL SETUP
   Serial.begin(9600);
@@ -107,7 +110,7 @@ void setup() {
 
 // PIEZO SETUP
   pinMode(piezo, OUTPUT);
-  a = 0;
+  a = 1;
   b = 0;
 
 // LED SETUP
@@ -119,8 +122,11 @@ void setup() {
 // SERVO SETUP
   myservo.writeMicroseconds(1500); //set initial servo position if desired
   myservo.attach(12, 500, 2500);  //the pin for the servo control, and range if desired
+
+// RELAY SETUP
+  pinMode(relayPin, OUTPUT);
 }
- 
+
 void loop() {
 
 // BREAKBEAM 
@@ -153,13 +159,14 @@ void loop() {
 // SERVO 
   servoMove();
 
+//// RELAY
+//  relay();
+
 }
 
 void LEDclock() {  
   sprintf(s,"%ld", counter);  // 
-    
-    //if (! isprint(c)) return; // only printable!
-    
+
     // scroll down display
     displaybuffer[0] = s[0];
     displaybuffer[1] = s[1];
@@ -177,8 +184,8 @@ void LEDclock() {
 }
 
 void LED() {
-  if (counter == milestone1) {
-    digitalWrite(led1, HIGH); // Turn the LED on
+  if (counter == milestone1) {  // Turn LEDs on at milestones
+    digitalWrite(led1, HIGH); 
   }
   if (counter == milestone2) {
     digitalWrite(led2, HIGH); 
@@ -199,8 +206,8 @@ void LED() {
 
 void servoMove() {
   int angle;
-  if (counter < milestone1 ) {
-    angle = 180 / (milestone1 - counter); 
+  if (counter < milestone1 ) {  
+    angle = 180 / (milestone1 - counter); // have servo move from 0 degrees to 180, within the milstone counter periods
     myservo.write(angle);
   }
   if (counter > milestone1 && counter < milestone2) {
@@ -214,6 +221,21 @@ void servoMove() {
   if (counter > milestone3 && counter < milestone4) {
     angle = 180 / (milestone4 - counter); 
     myservo.write(angle);
+  }
+}
+
+void relay() {
+  if (
+    counter == milestone1 ||    // turn relay on at milestones, short delay, then turn off
+    counter == milestone2 || 
+    counter == milestone3 || 
+    counter == milestone4) {
+      digitalWrite(relayPin, HIGH);
+      delay(2000);
+      digitalWrite(relayPin, LOW);
+  }
+  else {
+    digitalWrite(relayPin, LOW);
   }
 }
 
